@@ -6,11 +6,11 @@ import { Video, BarChart2, FileText, Settings, LayoutDashboard } from "lucide-re
 import { motion } from "framer-motion";
 
 const navItems = [
-  { name: "Overview", href: "/", icon: LayoutDashboard },
-  { name: "Daily Shorts", href: "/shorts", icon: Video },
-  { name: "AI Reports", href: "/reports", icon: BarChart2 },
-  { name: "Script Studio", href: "/studio", icon: FileText },
-  { name: "Settings", href: "/settings", icon: Settings },
+  { name: "오버뷰", href: "/", icon: LayoutDashboard },
+  { name: "일일 쇼츠", href: "/shorts", icon: Video },
+  { name: "AI 리포트", href: "/reports", icon: BarChart2 },
+  { name: "스크립트 스튜디오", href: "/studio", icon: FileText },
+  { name: "설정", href: "/settings", icon: Settings },
 ];
 
 export function Sidebar() {
@@ -57,7 +57,7 @@ export function Sidebar() {
         <div className="glass-card rounded-2xl p-4 flex flex-col gap-3 relative overflow-hidden group">
           <div className="absolute inset-0 bg-gradient-to-br from-purple-500/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
           <div className="flex justify-between items-center">
-            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">Automation</p>
+            <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">자동화</p>
             <span className="flex h-2 w-2 relative">
               <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               <span className="relative inline-flex rounded-full h-2 w-2 bg-emerald-500"></span>
@@ -65,7 +65,7 @@ export function Sidebar() {
           </div>
           <div className="flex items-end gap-2">
             <span className="text-2xl font-bold text-white tracking-tighter">124</span>
-            <span className="text-xs text-slate-400 mb-1">videos/mo</span>
+            <span className="text-xs text-slate-400 mb-1">비디오/월</span>
           </div>
           <div className="w-full bg-slate-800/80 rounded-full h-1.5 overflow-hidden">
             <div className="bg-gradient-to-r from-purple-500 to-rose-500 w-[80%] h-full rounded-full relative">

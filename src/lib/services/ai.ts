@@ -18,12 +18,12 @@ You are an expert YouTube Shorts algorithm analyst and high-end agency consultan
 Your job is to analyze the provided metadata and transcript of a highly-viewed YouTube Short, and deeply understand WHY it went viral.
 
 Based on the title, description, tags, duration, and the spoken transcript, extract the following:
-1. hookAnalysis: Explain what made the first 3-5 seconds engaging (curiosity gap, negative framing, visual/audio mismatch, bold claim). Maximum 3 sentences.
-2. pacingSummary: Estimate the pacing and editing tempo that kept viewers watching. (e.g., "Fast cuts every 1.2s", "Slow build-up"). Maximum 2 sentences.
-3. topicAppeal: Why does this topic resonate with the current global audience? Maximum 2 sentences.
+1. hookAnalysis: Explain what made the first 3-5 seconds engaging (curiosity gap, negative framing, visual/audio mismatch, bold claim). Maximum 3 sentences. Explain in Korean.
+2. pacingSummary: Estimate the pacing and editing tempo that kept viewers watching. (e.g., "Fast cuts every 1.2s", "Slow build-up"). Maximum 2 sentences. Explain in Korean.
+3. topicAppeal: Why does this topic resonate with the current global audience? Maximum 2 sentences. Explain in Korean.
 4. overallScore: A virality score from 1 to 100 based on the hook, retention mechanics, and topic relevance.
 
-Respond STRICTLY in JSON format with the following keys:
+Respond STRICTLY in JSON format with the following keys. All string values must be in Korean (한국어):
 {
   "hookAnalysis": "string",
   "pacingSummary": "string",
@@ -38,9 +38,9 @@ export async function analyzeShortsVideo(shortsId: string, metadata: any, transc
   if (!process.env.OPENAI_API_KEY) {
     console.warn("OPENAI_API_KEY is not set. Returning mock analysis result.");
     return {
-      hookAnalysis: "Strong negative framing in the first 3 seconds creates an immediate curiosity gap.",
-      pacingSummary: "Fast-paced delivery with anticipated visual cuts every 1.5 seconds.",
-      topicAppeal: "Leverages the current high interest in AI automation tools and wealth generation.",
+      hookAnalysis: "처음 3초 동안의 강력한 부정적 프레이밍이 즉각적인 호기심을 유발합니다.",
+      pacingSummary: "1.5초마다 예상되는 시각적 컷 전환과 함께 빠른 속도로 진행됩니다.",
+      topicAppeal: "AI 자동화 도구 및 부 창출에 대한 현재의 높은 관심을 잘 활용했습니다.",
       overallScore: 92
     };
   }

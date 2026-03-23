@@ -121,18 +121,18 @@ function getMockShortsData(): YouTubeVideoData[] {
   return [
     {
       id: "mock-1",
-      title: "How to Build a $10K/mo AI Agency",
-      description: "Step by step guide to AI automation.",
+      title: "월 1천만원 버는 AI 에이전시 구축하기",
+      description: "AI 자동화에 대한 단계별 가이드.",
       channelId: "UC123",
-      channelTitle: "AI Entrepreneur",
+      channelTitle: "AI 사업가",
       publishedAt: new Date().toISOString(),
       thumbnails: {},
       duration: "PT58S",
       viewCount: "12400000",
       likeCount: "840000",
       commentCount: "12000",
-      tags: ["ai", "agency", "business"],
-      transcript: "Stop doing cold outreach. Nobody is reading your DMs anyway. If you want to build a 10K a month AI agency in 2026, here is the exact 3-step blueprint. First..."
+      tags: ["ai", "agency", "business", "에이전시", "비즈니스"],
+      transcript: "콜드 아웃리치는 그만하세요. 아무도 당신의 DM을 읽지 않습니다. 2026년에 월 1천만원 규모의 AI 에이전시를 구축하고 싶다면, 여기 정확한 3단계 청사진이 있습니다. 첫째..."
     }
   ];
 }

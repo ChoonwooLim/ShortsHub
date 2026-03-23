@@ -7,7 +7,7 @@ export function Header() {
         <Search className="w-4 h-4 text-slate-500 absolute left-3 group-focus-within:text-purple-400 transition-colors" />
         <input 
           type="text" 
-          placeholder="Search global shorts, trends, or scripts..." 
+          placeholder="글로벌 쇼츠, 트렌드, 스크립트 검색..." 
           className="w-full bg-[#1e293b]/50 border border-slate-700/50 text-sm text-slate-200 rounded-full pl-10 pr-4 py-2 focus:outline-none focus:bg-[#1e293b] focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all font-sans placeholder:text-slate-500"
         />
       </div>
@@ -15,7 +15,7 @@ export function Header() {
       <div className="flex items-center gap-5">
         <button className="flex items-center gap-2 px-3 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-400 hover:bg-purple-500/20 hover:text-purple-300 transition-all text-xs font-semibold tracking-wide">
           <Sparkles className="w-3.5 h-3.5" />
-          <span>New Script AI</span>
+          <span>새 스크립트 AI</span>
         </button>
 
         <div className="h-6 w-px bg-slate-700/50"></div>
