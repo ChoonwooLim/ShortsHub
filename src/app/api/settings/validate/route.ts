@@ -44,13 +44,24 @@ export async function POST(request: Request) {
     // 3. Validate ElevenLabs
     if (elevenlabs && elevenlabs.trim().length > 0) {
       try {
-        const res = await fetch('https://api.elevenlabs.io/v1/voices', {
-          headers: { 'xi-api-key': elevenlabs }
+        const cleanKey = elevenlabs.trim();
+        const res = await fetch('https://api.elevenlabs.io/v1/user', {
+          headers: { 'xi-api-key': cleanKey }
         });
         if (res.ok) {
           results.elevenlabs = { valid: true, message: '연결 성공' };
         } else {
-          results.elevenlabs = { valid: false, message: '유효하지 않은 API 키' };
+          try {
+            const errBody = await res.json();
+            if (errBody?.detail?.status === 'invalid_api_key') {
+              results.elevenlabs = { valid: false, message: '유효하지 않은 API 키' };
+            } else {
+              // It's authenticated but lacks permission, so it's a valid key
+              results.elevenlabs = { valid: true, message: '연결 성공 (일부 권한 제한됨)' };
+            }
+          } catch(e) {
+            results.elevenlabs = { valid: false, message: `유효하지 않은 API 키 (${res.status})` };
+          }
         }
       } catch (e) {
         results.elevenlabs = { valid: false, message: '네트워크 에러' };
