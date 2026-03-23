@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { Video, BarChart2, FileText, Settings, LayoutDashboard } from "lucide-react";
+import { Video, BarChart2, FileText, Settings, LayoutDashboard, BookOpen, Key, ToyBrick } from "lucide-react";
 import { motion } from "framer-motion";
 
 const navItems = [
@@ -10,7 +10,9 @@ const navItems = [
   { name: "일일 쇼츠", href: "/shorts", icon: Video },
   { name: "AI 리포트", href: "/reports", icon: BarChart2 },
   { name: "스크립트 스튜디오", href: "/studio", icon: FileText },
-  { name: "설정", href: "/settings", icon: Settings },
+  { name: "MCP 스튜디오", href: "/mcp", icon: ToyBrick },
+  { name: "API 설정", href: "/settings", icon: Key },
+  { name: "사용 설명서", href: "/manual", icon: BookOpen },
 ];
 
 export function Sidebar() {
