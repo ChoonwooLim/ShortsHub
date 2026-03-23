@@ -1,0 +1,68 @@
+// prisma/schema.prisma
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model ShortsVideo {
+  id           String   @id @default(uuid())
+  youtubeId    String   @unique
+  title        String
+  description  String?
+  channelId    String
+  channelTitle String
+  publishedAt  DateTime
+  viewCount    BigInt
+  likeCount    BigInt?
+  commentCount BigInt?
+  duration     String?
+  tags         String[]
+  transcript   String?
+  thumbnailUrl String?
+  crawledAt    DateTime @default(now())
+
+  analysis     AnalysisReport?
+  scripts      GeneratedScript[]
+}
+
+model AnalysisReport {
+  id           String      @id @default(uuid())
+  shortsId     String      @unique
+  shorts       ShortsVideo @relation(fields: [shortsId], references: [id], onDelete: Cascade)
+  
+  hookAnalysis  String
+  pacingSummary String
+  topicAppeal   String
+  overallScore  Int
+  fullReport    Json
+  
+  createdAt    DateTime    @default(now())
+}
+
+model GeneratedScript {
+  id           String      @id @default(uuid())
+  shortsId     String?
+  shorts       ShortsVideo? @relation(fields: [shortsId], references: [id], onDelete: SetNull)
+  
+  title        String
+  hook         String
+  bodyText     String      @db.Text
+  callToAction String
+  storyboard   Json
+  status       ScriptStatus @default(DRAFT)
+  
+  createdAt    DateTime    @default(now())
+  updatedAt    DateTime    @updatedAt
+}
+
+enum ScriptStatus {
+  DRAFT
+  APPROVED
+  GENERATING_VIDEO
+  PUBLISHED
+}
