@@ -1,16 +1,63 @@
 "use client";
 
 import { motion } from "framer-motion";
-import { Key, Save, CheckCircle2, AlertCircle } from "lucide-react";
+import { Key, Save, CheckCircle2, AlertCircle, ExternalLink, Loader2 } from "lucide-react";
 import { useState } from "react";
 
 export default function SettingsPage() {
   const [keys, setKeys] = useState({ openai: "", youtube: "", elevenlabs: "" });
-  const [saved, setSaved] = useState(false);
+  const [validating, setValidating] = useState(false);
+  const [status, setStatus] = useState<any>({
+    openai: { valid: null, message: "" },
+    youtube: { valid: null, message: "" },
+    elevenlabs: { valid: null, message: "" }
+  });
 
-  const handleSave = () => {
-    setSaved(true);
-    setTimeout(() => setSaved(false), 3000);
+  const handleValidation = async () => {
+    setValidating(true);
+    // Reset status briefly for re-validation feel
+    setStatus({
+      openai: { valid: null, message: "" },
+      youtube: { valid: null, message: "" },
+      elevenlabs: { valid: null, message: "" }
+    });
+
+    try {
+      const res = await fetch('/api/settings/validate', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(keys)
+      });
+      const data = await res.json();
+      if (data.success) {
+        setStatus(data.results);
+      }
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setValidating(false);
+    }
+  };
+
+  const getStatusIcon = (fieldStatus: { valid: boolean | null, message: string }) => {
+    if (fieldStatus.valid === true) return <CheckCircle2 className="w-5 h-5 text-emerald-500" />;
+    if (fieldStatus.valid === false) return <AlertCircle className="w-5 h-5 text-rose-500" />;
+    return null;
+  };
+
+  const getInputClass = (fieldStatus: { valid: boolean | null, message: string }, defaultColor: string) => {
+    let focusClass = `focus:border-${defaultColor}-500/50 focus:ring-${defaultColor}-500/50`;
+    let borderClass = 'border-slate-700/80';
+    
+    if (fieldStatus.valid === true) {
+      borderClass = 'border-emerald-500/50 text-emerald-100';
+      focusClass = 'focus:border-emerald-500/50 focus:ring-emerald-500/50';
+    } else if (fieldStatus.valid === false) {
+      borderClass = 'border-rose-500/50 text-rose-100 bg-rose-500/5';
+      focusClass = 'focus:border-rose-500/50 focus:ring-rose-500/50';
+    }
+    
+    return `w-full bg-[#0a0c10] border ${borderClass} text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:ring-1 transition-all font-mono placeholder:text-slate-600 ${focusClass}`;
   };
 
   return (
@@ -28,59 +75,103 @@ export default function SettingsPage() {
       <div className="glass border border-slate-800 rounded-3xl p-8 relative overflow-hidden bg-slate-900/40">
         <div className="absolute top-0 right-0 w-64 h-64 bg-purple-500/5 rounded-full blur-3xl -mr-20 -mt-20 pointer-events-none"></div>
         
-        <div className="space-y-6 relative z-10">
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-300">OpenAI API Key <span className="text-rose-500">*</span></label>
-            <input 
-              type="password" 
-              placeholder="sk-..." 
-              value={keys.openai}
-              onChange={(e) => setKeys({...keys, openai: e.target.value})}
-              className="w-full bg-[#0a0c10] border border-slate-700/80 text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-purple-500/50 focus:ring-1 focus:ring-purple-500/50 transition-all font-mono placeholder:text-slate-600"
-            />
-            <p className="text-xs text-slate-500">대본 생성 및 유튜브 메타데이터 분석(Viral 요인 추출)을 위해 필요합니다.</p>
+        <div className="space-y-8 relative z-10">
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-slate-300">OpenAI API Key <span className="text-rose-500">*</span></label>
+              <a href="https://platform.openai.com/api-keys" target="_blank" rel="noreferrer" className="text-xs text-purple-400 hover:text-purple-300 flex items-center gap-1 transition-colors">
+                 키 발급받기 <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+            <div className="relative">
+              <input 
+                type="password" 
+                placeholder="sk-..." 
+                value={keys.openai}
+                onChange={(e) => setKeys({...keys, openai: e.target.value})}
+                className={getInputClass(status.openai, 'purple')}
+              />
+              <div className="absolute right-3 top-3">
+                 {getStatusIcon(status.openai)}
+              </div>
+            </div>
+            <div className="flex justify-between items-start">
+              <p className="text-xs text-slate-500">대본 생성 및 유튜브 메타데이터 분석을 위해 필요합니다.</p>
+              {status.openai.message && (
+                <span className={`text-xs font-semibold ${status.openai.valid ? 'text-emerald-400' : 'text-rose-400'}`}>{status.openai.message}</span>
+              )}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-300">YouTube Data API v3 Key <span className="text-rose-500">*</span></label>
-            <input 
-              type="password" 
-              placeholder="AIzaSy..." 
-              value={keys.youtube}
-              onChange={(e) => setKeys({...keys, youtube: e.target.value})}
-              className="w-full bg-[#0a0c10] border border-slate-700/80 text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-rose-500/50 focus:ring-1 focus:ring-rose-500/50 transition-all font-mono placeholder:text-slate-600"
-            />
-            <p className="text-xs text-slate-500">일일 글로벌 쇼츠 트렌드 배열 및 통계(조회수, 좋아요 등) 수집을 위해 필요합니다.</p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-slate-300">YouTube Data API v3 Key <span className="text-rose-500">*</span></label>
+              <a href="https://console.cloud.google.com/apis/library/youtube.googleapis.com" target="_blank" rel="noreferrer" className="text-xs text-rose-400 hover:text-rose-300 flex items-center gap-1 transition-colors">
+                 키 발급받기 <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+            <div className="relative">
+              <input 
+                type="password" 
+                placeholder="AIzaSy..." 
+                value={keys.youtube}
+                onChange={(e) => setKeys({...keys, youtube: e.target.value})}
+                className={getInputClass(status.youtube, 'rose')}
+              />
+              <div className="absolute right-3 top-3">
+                 {getStatusIcon(status.youtube)}
+              </div>
+            </div>
+            <div className="flex justify-between items-start">
+              <p className="text-xs text-slate-500">일일 글로벌 쇼츠 트렌드 수집을 위해 필요합니다.</p>
+              {status.youtube.message && (
+                <span className={`text-xs font-semibold ${status.youtube.valid ? 'text-emerald-400' : 'text-rose-400'}`}>{status.youtube.message}</span>
+              )}
+            </div>
           </div>
 
-          <div className="space-y-2">
-            <label className="text-sm font-semibold text-slate-300">ElevenLabs API Key <span className="text-slate-500 font-normal ml-1">(선택 사항)</span></label>
-            <input 
-              type="password" 
-              placeholder="본인 계정의 API 키 입력..." 
-              value={keys.elevenlabs}
-              onChange={(e) => setKeys({...keys, elevenlabs: e.target.value})}
-              className="w-full bg-[#0a0c10] border border-slate-700/80 text-sm text-slate-200 rounded-xl px-4 py-3 focus:outline-none focus:border-amber-500/50 focus:ring-1 focus:ring-amber-500/50 transition-all font-mono placeholder:text-slate-600"
-            />
-            <p className="text-xs text-slate-500">비디오 렌더링 파이프라인에서 프리미엄 AI 성우 음성(TTS) 생성을 원할 경우 사용됩니다.</p>
+          <div className="space-y-3">
+            <div className="flex items-center justify-between">
+              <label className="text-sm font-semibold text-slate-300">ElevenLabs API Key <span className="text-slate-500 font-normal ml-1">(선택 사항)</span></label>
+              <a href="https://elevenlabs.io/app/settings/api-keys" target="_blank" rel="noreferrer" className="text-xs text-amber-400 hover:text-amber-300 flex items-center gap-1 transition-colors">
+                 키 발급받기 <ExternalLink className="w-3 h-3" />
+              </a>
+            </div>
+            <div className="relative">
+              <input 
+                type="password" 
+                placeholder="본인 계정의 API 키 입력..." 
+                value={keys.elevenlabs}
+                onChange={(e) => setKeys({...keys, elevenlabs: e.target.value})}
+                className={getInputClass(status.elevenlabs, 'amber')}
+              />
+              <div className="absolute right-3 top-3">
+                 {getStatusIcon(status.elevenlabs)}
+              </div>
+            </div>
+            <div className="flex justify-between items-start">
+               <p className="text-xs text-slate-500">프리미엄 AI 성우 음성(TTS) 생성을 원할 경우 사용됩니다.</p>
+               {status.elevenlabs.message && (
+                 <span className={`text-xs font-semibold ${status.elevenlabs.valid ? 'text-emerald-400' : 'text-rose-400'}`}>{status.elevenlabs.message}</span>
+               )}
+            </div>
           </div>
         </div>
 
         <div className="mt-10 flex items-center justify-between border-t border-slate-800/80 pt-6 relative z-10">
-          {saved ? (
-             <div className="flex items-center gap-2 text-emerald-400 text-sm font-medium animate-in fade-in slide-in-from-bottom-2">
-                <CheckCircle2 className="w-4 h-4" /> 성공적으로 인증 키가 저장되었습니다
-             </div>
-          ) : (
-             <div className="flex items-center gap-2 text-slate-500 text-xs">
-                <AlertCircle className="w-4 h-4" /> 유효하지 않은 키를 등록하면 수집 및 분석 기능이 마비될 수 있습니다.
-             </div>
-          )}
+          <div className="flex items-center gap-2 text-slate-500 text-xs">
+             <AlertCircle className="w-4 h-4" /> 유효하지 않은 키를 등록하면 수집 및 분석 기능이 마비될 수 있습니다.
+          </div>
           <button 
-            onClick={handleSave}
-            className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)] flex items-center gap-2"
+            onClick={handleValidation}
+            disabled={validating || (!keys.openai && !keys.youtube && !keys.elevenlabs)}
+            className="px-6 py-2.5 rounded-xl bg-purple-600 hover:bg-purple-500 text-white text-sm font-semibold transition-all shadow-[0_0_15px_rgba(147,51,234,0.3)] flex items-center gap-2 disabled:opacity-50 disabled:cursor-not-allowed group"
           >
-            <Save className="w-4 h-4" /> 키 일괄 저장하기
+            {validating ? (
+              <><Loader2 className="w-4 h-4 animate-spin" /> 유효성 검증 중...</>
+            ) : (
+              <><CheckCircle2 className="w-4 h-4" /> 키 일괄 저장 및 테스트</>
+            )}
           </button>
         </div>
       </div>
