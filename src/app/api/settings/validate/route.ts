@@ -1,4 +1,6 @@
 import { NextResponse } from 'next/server';
+import fs from 'fs';
+import path from 'path';
 
 export async function POST(request: Request) {
   try {
@@ -66,6 +68,38 @@ export async function POST(request: Request) {
       } catch (e) {
         results.elevenlabs = { valid: false, message: '네트워크 에러' };
       }
+    }
+
+    // 4. Save to .env and memory if valid
+    const envPath = path.join(process.cwd(), '.env');
+    let envContent = '';
+    try {
+      if (fs.existsSync(envPath)) {
+        envContent = fs.readFileSync(envPath, 'utf8');
+      }
+      
+      let updated = false;
+      const updateEnv = (key: string, value: string) => {
+        process.env[key] = value;
+        const regex = new RegExp(`^${key}=.*$`, 'm');
+        if (regex.test(envContent)) {
+          envContent = envContent.replace(regex, `${key}="${value}"`);
+        } else {
+          envContent += `\n${key}="${value}"`;
+        }
+        updated = true;
+      };
+
+      if (results.openai.valid) updateEnv('OPENAI_API_KEY', openai.trim());
+      if (results.youtube.valid) updateEnv('YOUTUBE_API_KEY', youtube.trim());
+      if (results.elevenlabs.valid) updateEnv('ELEVENLABS_API_KEY', elevenlabs.trim());
+
+      if (updated) {
+        fs.writeFileSync(envPath, envContent.trim() + '\n', 'utf8');
+        console.log('[Settings] Successfully saved valid API keys to .env and process.env');
+      }
+    } catch (fsError) {
+      console.error('[Settings] Failed to save to .env (Ignore if in serverless environment):', fsError);
     }
 
     return NextResponse.json({ success: true, results });

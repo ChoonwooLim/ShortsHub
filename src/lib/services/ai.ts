@@ -1,10 +1,9 @@
 import OpenAI from 'openai';
-import { PrismaClient } from '@prisma/client';
+import prisma from '@/lib/prisma';
 
 const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY || 'mock-key',
 });
-const prisma = new PrismaClient();
 
 export interface AnalysisResult {
   hookAnalysis: string;
@@ -37,12 +36,27 @@ export async function analyzeShortsVideo(shortsId: string, metadata: any, transc
 
   if (!process.env.OPENAI_API_KEY) {
     console.warn("OPENAI_API_KEY is not set. Returning mock analysis result.");
-    return {
+    const mockData = {
       hookAnalysis: "처음 3초 동안의 강력한 부정적 프레이밍이 즉각적인 호기심을 유발합니다.",
       pacingSummary: "1.5초마다 예상되는 시각적 컷 전환과 함께 빠른 속도로 진행됩니다.",
       topicAppeal: "AI 자동화 도구 및 부 창출에 대한 현재의 높은 관심을 잘 활용했습니다.",
       overallScore: 92
     };
+    
+    await prisma.analysisReport.upsert({
+      where: { shortsId },
+      update: {
+        ...mockData,
+        fullReport: mockData as any,
+      },
+      create: {
+        shortsId,
+        ...mockData,
+        fullReport: mockData as any,
+      }
+    });
+    
+    return mockData;
   }
 
   try {
@@ -77,7 +91,7 @@ export async function analyzeShortsVideo(shortsId: string, metadata: any, transc
         pacingSummary: parsedData.pacingSummary,
         topicAppeal: parsedData.topicAppeal,
         overallScore: parsedData.overallScore,
-        fullReport: parsedData, // Store full JSON
+        fullReport: parsedData as any, // Store full JSON
       },
       create: {
         shortsId,
@@ -85,7 +99,7 @@ export async function analyzeShortsVideo(shortsId: string, metadata: any, transc
         pacingSummary: parsedData.pacingSummary,
         topicAppeal: parsedData.topicAppeal,
         overallScore: parsedData.overallScore,
-        fullReport: parsedData,
+        fullReport: parsedData as any,
       }
     });
 

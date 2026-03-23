@@ -1,9 +1,7 @@
 import { NextResponse } from 'next/server';
 import { fetchDailyTopShorts } from '@/lib/services/youtube';
 import { analyzeShortsVideo } from '@/lib/services/ai';
-import { PrismaClient } from '@prisma/client';
-
-const prisma = new PrismaClient();
+import prisma from '@/lib/prisma';
 
 export async function GET(request: Request) {
   // 1. Verify Vercel Cron secret for security
@@ -29,7 +27,7 @@ export async function GET(request: Request) {
 
       try {
         // Upsert into DB to avoid duplicates
-        await prisma.shortsVideo.upsert({
+        const upsertedShorts = await prisma.shortsVideo.upsert({
           where: { youtubeId: short.id },
           update: {
             viewCount: viewCountParse, // If changed to bigint, wrap in BigInt()
@@ -55,8 +53,8 @@ export async function GET(request: Request) {
         });
         savedCount++;
         
-        // Phase 3 integration hook (AI Analysis)
-        await analyzeShortsVideo(short.id, short, short.transcript || '');
+        // Phase 3 integration hook (AI Analysis) -> PASS INTERNAL UUID, NOT YOUTUBE ID
+        await analyzeShortsVideo(upsertedShorts.id, short, short.transcript || '');
 
       } catch (dbError) {
         console.error(`[CRON] Database error saving shorts [${short.id}]:`, dbError);
